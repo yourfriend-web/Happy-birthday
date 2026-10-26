@@ -6,7 +6,7 @@
 window.CONFIG = {
 
   /* ── 1. NAAM ── */
-  name: "HARIOM",
+  name: "Bhai!!",
 
   /* ── 2. BIRTHDAY KA DATE & TIME ────────────────────────
      year   : janam year (e.g. 2003)  → "You've lived" stats page ke liye
