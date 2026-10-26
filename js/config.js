@@ -21,8 +21,8 @@ window.CONFIG = {
   ──────────────────────────────────────────────────────── */
   birthday: {
     year:   null,   // ← TODO: janam year daalo (e.g. 2003)
-    month:  1,      // ← TODO: birthday ka month (1-12)
-    day:    1,      // ← TODO: birthday ki date (1-31)
+    month:  10,      // ← TODO: birthday ka month (1-12)
+    day:    27,      // ← TODO: birthday ki date (1-31)
     hour:   0,      // ← countdown kis baje khatam ho (0-23)
     minute: 0,      // ← minute (0-59)
   },
@@ -36,6 +36,6 @@ window.CONFIG = {
   /* ── 4. WHATSAPP MESSAGE ──
      Button dabane pe WhatsApp khulega aur keyboard me ye message
      pehle se likha hoga — Hariom bas SEND dabayega */
-  waText: "Hii",
+  waText: "Hello bhai!",
 
 };
