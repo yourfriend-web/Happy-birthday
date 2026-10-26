@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Happy Birthday Bhai! 🎂</title>
+<meta name="theme-color" content="#0d0620" />
+
+<!-- WhatsApp / social rich preview -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="A surprise is waiting for you 🎂" />
+<meta property="og:description" content="Happy Birthday Bhai — apna gift kholne ke liye tap karo. Trust me, worth it hai." />
+<meta property="og:image" content="assets/og.jpg" />
+<!-- Deploy ke baad upar wali line me poora URL daal dena, e.g.
+     https://your-site.netlify.app/assets/og.jpg  (best WhatsApp preview ke liye) -->
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- Favicon (cake) -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎂</text></svg>" />
+
+<!-- Fonts (Fredoka + Nunito + Playfair accent) -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:ital,wght@0,300;0,400;0,600;0,700;0,800;1,400&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet" />
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Confetti + GSAP -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+
+<link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body class="min-h-screen text-white overflow-x-hidden">
+  <!-- Preloader -->
+  <div id="preloader" aria-hidden="true">
+    <div class="pre-inner">
+      <div class="pre-ring"><span class="pre-monogram">H</span></div>
+      <p class="pre-text">kuch khaas load ho raha hai…</p>
+    </div>
+    <div class="pre-curtain"></div>
+    <div class="pre-curtain pre-curtain-2"></div>
+  </div>
+
+  <!-- Three.js ambient background -->
+  <canvas id="bg3d" class="fixed inset-0 -z-10" aria-hidden="true"></canvas>
+  <div id="bgFallback" class="fixed inset-0 -z-20 bg-aurora" aria-hidden="true"></div>
+
+  <!-- Music toggle (corner) -->
+  <button id="musicBtn" class="corner-btn" aria-label="Toggle music" title="Music on/off">
+    <svg id="iconMusicOn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+      <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+    </svg>
+    <svg id="iconMusicOff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 hidden">
+      <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/><line x1="2" y1="2" x2="22" y2="22"/>
+    </svg>
+  </button>
+
+  <main id="app">
+
+    <!-- ═══════════ 1. WELCOME — real-time countdown ═══════════ -->
+    <section id="screen-welcome" class="screen flex flex-col items-center justify-center text-center px-5">
+      <p class="text-amber-200/90 tracking-[0.35em] uppercase text-xs sm:text-sm font-semibold mb-4 fade-up" style="--d:.05s">Kuch khaas hone wala hai</p>
+
+      <div class="fade-up" style="--d:.15s">
+        <span class="font-serif italic text-2xl sm:text-3xl text-white/80 block">Happy Birthday</span>
+        <h1 class="font-display text-6xl sm:text-8xl lg:text-9xl font-bold mt-1 gradient-text shine" data-name>HARIOM</h1>
+      </div>
+
+      <div id="birthdayToday" class="hidden mt-6 fade-up" style="--d:.25s">
+        <p class="text-2xl sm:text-3xl font-display text-amber-300 animate-pulse-soft">🎉 Aaj hi hai! Celebration LIVE hai! 🎉</p>
+      </div>
+
+      <div id="countdownWrap" class="mt-8 fade-up" style="--d:.3s">
+        <p class="text-white/70 text-sm sm:text-base mb-4">Bade din ka live countdown</p>
+        <div id="countdown" class="flex gap-2 sm:gap-4 justify-center" role="timer" aria-live="polite">
+          <div class="cd-box"><span id="cdDays" class="cd-num">00</span><label>Din</label></div>
+          <div class="cd-box"><span id="cdHours" class="cd-num">00</span><label>Ghante</label></div>
+          <div class="cd-box"><span id="cdMins" class="cd-num">00</span><label>Minute</label></div>
+          <div class="cd-box"><span id="cdSecs" class="cd-num">00</span><label>Second</label></div>
+        </div>
+      </div>
+
+      <button id="btnStart" class="btn-primary mt-12 fade-up" style="--d:.45s">
+        <span>Celebration Shuru Karo</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+      <p class="mt-6 text-white/40 text-xs fade-up" style="--d:.55s">🔊 Volume on kar lo — poora experience enjoy karne ke liye</p>
+    </section>
+
+    <!-- ═══════════ 2. CAKE + WISHES ═══════════ -->
+    <section id="screen-cake" class="screen hidden flex flex-col items-center justify-center text-center px-5">
+      <p class="text-amber-200/90 tracking-[0.3em] uppercase text-xs sm:text-sm font-semibold fade-up" style="--d:.05s">Pehla Chapter</p>
+      <h2 class="font-display text-4xl sm:text-5xl font-bold mt-2 fade-up" style="--d:.15s">Cake ko light karo</h2>
+      <p class="text-white/70 mt-3 max-w-md fade-up" style="--d:.25s">Har candle ko tap karke jalao — phir flames ko tap karke bujhao. Ek-ek karke.</p>
+
+      <!-- cake stage -->
+      <div id="cakeStage" class="relative mt-10 mb-2 fade-up" style="--d:.35s">
+        <div id="candleRow" class="absolute left-1/2 -translate-x-1/2 flex gap-6 sm:gap-8 items-end z-20" style="top:-2px"></div>
+        <div class="cake" id="cake">
+          <div class="cake-plate"></div>
+          <div class="cake-layer cake-bottom">
+            <div class="icing drip"></div>
+            <div class="sprinkle s1"></div><div class="sprinkle s2"></div><div class="sprinkle s3"></div>
+            <div class="sprinkle s4"></div><div class="sprinkle s5"></div><div class="sprinkle s6"></div>
+          </div>
+          <div class="cake-layer cake-top">
+            <div class="icing drip"></div>
+            <div class="cherry"></div>
+          </div>
+        </div>
+        <div class="cake-glow" id="cakeGlow"></div>
+      </div>
+
+      <p id="cakeHint" class="text-amber-300/90 font-semibold min-h-[24px] mt-4">Candle tap karke jalao 🕯️</p>
+
+      <div id="wishesBox" class="hidden mt-8 w-full max-w-md space-y-4">
+        <div class="wish-card">
+          <p class="font-serif italic text-lg sm:text-xl leading-relaxed">"Ek aur saal tumhari unstoppable energy ka. Dua hai ye saal wo sab laaye jo tumne chupke se mehnat kar ke maanga hai."</p>
+        </div>
+        <div class="wish-card">
+          <p class="text-white/85 leading-relaxed">Tum ordinary dinon ko festival bana dete ho, aur mushkil dinon ko bas aake halka kar dete ho. Duniya sach me lucky hai ki tumhari energy usme hai.</p>
+        </div>
+        <div class="wish-card">
+          <p class="text-white/85 leading-relaxed">Naye adventures ke liye, aur bhi zyada hansi ke liye, badi jeet ke liye — aur ek aise dost ke liye jo har ek pal tumhare saath rahega. <span class="text-amber-300 font-bold">Happy Birthday!</span></p>
+        </div>
+      </div>
+
+      <button id="btnToGift" class="btn-primary mt-10 hidden">
+        <span>Ek surprise aur hai…</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </section>
+
+    <!-- ═══════════ 3. PHOTO GATE (yes/no) ═══════════ -->
+    <section id="screen-photo-gate" class="screen hidden flex flex-col items-center justify-center text-center px-5">
+      <div class="gift-icon fade-up" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-16 h-16"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg>
+      </div>
+      <h2 class="font-display text-4xl sm:text-5xl font-bold mt-6 fade-up" style="--d:.1s">Tumhare liye ek gift…</h2>
+      <p class="text-white/75 mt-4 max-w-sm text-lg fade-up" style="--d:.2s">Is box ke andar kuch mera sabse precious cheez hai. <span class="text-amber-300 font-bold">Chahiye?</span></p>
+      <div class="flex gap-4 mt-10 fade-up" style="--d:.3s">
+        <button id="pgYes" class="btn-primary">Haan, bilkul!</button>
+        <button id="pgNo" class="btn-ghost">Nahi, rehne do</button>
+      </div>
+    </section>
+
+    <!-- ═══════════ 4. PHOTO TEASES ═══════════ -->
+    <section id="screen-tease" class="screen hidden flex flex-col items-center justify-center text-center px-5">
+      <!-- P1: progress + dodging button -->
+      <div id="teaseP1" class="tease-page">
+        <h3 class="font-display text-3xl sm:text-4xl font-bold">Gift pack ho raha hai…</h3>
+        <p id="p1Status" class="text-amber-300/90 mt-4 h-6 font-semibold">Initialising celebrations…</p>
+        <div class="loader-track mt-6"><div id="p1Bar" class="loader-fill"></div></div>
+        <button id="p1Reveal" class="btn-primary mt-10 hidden dodge-target">Khol do!</button>
+      </div>
+
+      <!-- P2: corner hunt -->
+      <div id="teaseP2" class="tease-page hidden">
+        <h3 class="font-display text-3xl sm:text-4xl font-bold">Gift hil gaya!</h3>
+        <p id="p2Hint" class="text-white/80 mt-4 text-lg max-w-xs">Screen ka <span class="text-amber-300 font-bold">upar-right corner</span> dekho…</p>
+        <div id="p2Spark" class="corner-spark hidden"></div>
+        <p class="text-white/40 text-sm mt-10">Jaldi karo, ye hamesha wait nahi karega ⏳</p>
+      </div>
+
+      <!-- P3: hold button -->
+      <div id="teaseP3" class="tease-page hidden">
+        <h3 class="font-display text-3xl sm:text-4xl font-bold">Bas thoda sa aur</h3>
+        <p class="text-white/75 mt-4 max-w-sm">Ye sirf sachche doston ko milta hai. Prove karo — <span class="text-amber-300 font-bold">button ko daba ke rakho</span>, haath bilkul mat chhodo.</p>
+        <button id="p3Hold" class="btn-primary mt-10 relative overflow-hidden">
+          <span class="relative z-10" id="p3HoldLabel">Pakad ke rakho…</span>
+          <span id="p3Fill" class="hold-fill"></span>
+        </button>
+        <p id="p3Taunt" class="text-rose-300/90 font-semibold h-6 mt-4"></p>
+      </div>
+
+      <!-- P4: decrypt -->
+      <div id="teaseP4" class="tease-page hidden">
+        <div class="vault-spinner" aria-hidden="true"></div>
+        <h3 class="font-display text-3xl sm:text-4xl font-bold mt-8">Precious file decrypt ho rahi hai…</h3>
+        <p id="p4Status" class="text-white/70 mt-4 h-6"></p>
+      </div>
+
+      <!-- P5: final yes-check -->
+      <div id="teaseP5" class="tease-page hidden">
+        <h3 class="font-display text-3xl sm:text-4xl font-bold">Aakhri check</h3>
+        <p id="p5Q" class="text-white/80 mt-4 text-lg max-w-sm">Kya tum sach me, sach me, 100% ready ho isko dekhne ke liye?</p>
+        <div class="flex gap-4 mt-10">
+          <button id="p5Yes" class="btn-primary">Haan! Haan! Sau baar haan</button>
+          <button id="p5No" class="btn-ghost">Umm… no</button>
+        </div>
+      </div>
+
+      <!-- P6: blur unwrap -->
+      <div id="teaseP6" class="tease-page hidden">
+        <h3 class="font-display text-3xl sm:text-4xl font-bold">Aakhri unwrap</h3>
+        <p id="p6Hint" class="text-white/75 mt-3">Photo ko <span class="text-amber-300 font-bold" id="p6Count">5</span> baar tap karke kholo</p>
+        <div class="relative mt-8">
+          <img id="giftPhoto" src="assets/photo.jpg" alt="A precious photo" class="gift-photo blur-strong" draggable="false" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════ 5. PHOTO REVEAL + DOWNLOAD ═══════════ -->
+    <section id="screen-photo" class="screen hidden flex flex-col items-center justify-center text-center px-5">
+      <p class="text-amber-200/90 tracking-[0.3em] uppercase text-xs sm:text-sm font-semibold fade-up" style="--d:.05s">Tumne deserve kiya hai</p>
+      <h2 class="font-display text-4xl sm:text-5xl font-bold mt-2 fade-up" style="--d:.15s">Lo ji — main hoon ✨</h2>
+      <div class="photo-frame mt-8 fade-up" style="--d:.25s">
+        <img src="assets/photo.jpg" alt="Hariom" class="block w-full h-full object-cover" draggable="false" />
+        <a id="btnDownload" class="download-btn" href="assets/photo.jpg" download="Hariom.jpg" aria-label="Download photo" title="Download this photo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        </a>
+      </div>
+      <p class="text-white/60 text-sm mt-4 fade-up" style="--d:.35s">Corner wale button se mujhe hamesha ke liye apne phone me save kar lo 📥</p>
+      <button id="btnToNumber" class="btn-primary mt-8 fade-up" style="--d:.45s">
+        <span>Ek aur cheez hai…</span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </button>
+    </section>
+
+    <!-- ═══════════ 1b. LIVE STATS — "you've lived" ═══════════ -->
+    <section id="screen-stats" class="screen hidden flex flex-col items-center justify-center text-center px-5">
+      <p class="text-amber-200/90 tracking-[0.3em] uppercase text-xs sm:text-sm font-semibold fade-up" style="--d:.05s">Kya tumhe pata hai?</p>
+      <h2 class="font-display text-4xl sm:text-5xl font-bold mt-2 fade-up" style="--d:.15s">Tum itne time se<br/>ho amazing…</h2>
+
+      <div class="stats-grid mt-10 fade-up" style="--d:.3s">
+        <div class="stat-card"><span id="stDays" class="stat-num">—</span><label>din se ho tum awesome</label></div>
+        <div class="stat-card"><span id="stHours" class="stat-num">—</span><label>ghante se khushi phaila rahe ho</label></div>
+        <div class="stat-card"><span id="stMins" class="stat-num">—</span><label>minute se ho tum sirf tum</label></div>
+        <div class="stat-card"><span id="stBeats" class="stat-num">—</span><label>heartbeat 💓 (abhi bhi gin rahe hain)</label></div>
+        <div class="stat-card"><span id="stMoons" class="stat-num">—</span><label>poore chand tumhe dekh chuke hain</label></div>
+        <div class="stat-card"><span id="stOrbits" class="stat-num">—</span><label>chakkar lagaye hain suraj ke ☀️</label></div>
+      </div>
+
+      <p class="text-white/50 text-sm mt-8 fade-up" style="--d:.5s">…aur har ek second iske layak tha.</p>
+      <button id="btnStatsSkip" class="btn-primary mt-8 fade-up" style="--d:.6s">Chalo, celebrate karein!</button>
+    </section>
+
+    <!-- ═══════════ 2b. BALLOON POP GAME ═══════════ -->
+    <section id="screen-game" class="screen hidden flex flex-col items-center justify-center text-center px-5">
+      <h2 class="font-display text-3xl sm:text-5xl font-bold fade-up" style="--d:.05s">Ek chhota sa game 🎈</h2>
+      <p id="gameHint" class="text-white/75 mt-4 max-w-sm fade-up" style="--d:.15s">Pop the floating balloons — <span class="text-amber-300 font-bold">one of them is hiding a secret</span>. Find it!</p>
+      <div id="balloonField" class="balloon-field"></div>
+      <div id="gameSecret" class="hidden max-w-md">
+        <div class="wish-card">
+          <p class="font-serif italic text-xl sm:text-2xl leading-relaxed">"Mil gaya! Secret ye hai — jitne bhi log main jaanta hoon, <span class="text-amber-300">tum bhi unme se ho jo zindagi ko celebration bana dete hai.</span>"</p>
+        </div>
+        <button id="btnGameDone" class="btn-primary mt-8">
+          <span>Ab asli gift ke liye…</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ═══════════ 4b. TYPEWRITER LETTER ═══════════ -->
+    <section id="screen-letter" class="screen hidden flex flex-col items-center justify-center text-center px-5">
+      <div id="letterEnvelope" class="envelope fade-up" role="button" tabindex="0" aria-label="Open the letter">
+        <div class="envelope-back"></div>
+        <div class="envelope-letter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-10 h-10"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg>
+          <span class="text-xs tracking-[0.2em] uppercase mt-2">Tumhare liye ek letter</span>
+        </div>
+        <div class="envelope-flap"></div>
+        <div class="envelope-front"></div>
+        <div class="envelope-seal">H</div>
+      </div>
+      <p id="letterTapHint" class="text-white/60 text-sm mt-8 animate-pulse-soft">Envelope tap karke kholo</p>
+
+      <div id="letterPaper" class="letter-paper hidden">
+        <p class="font-serif italic text-amber-200/90 text-lg">Pyare dost,</p>
+        <p id="letterText" class="letter-body"></p>
+        <p id="letterSign" class="letter-signature hidden">— Hariom</p>
+        <span id="letterCursor" class="type-cursor"></span>
+        <button id="btnLetterDone" class="btn-primary mt-8 hidden">
+          <span>Aakhri cheez hai…</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ═══════════ 6. NUMBER TEASES ═══════════ -->
+    <section id="screen-num" class="screen hidden flex flex-col items-center justify-center text-center px-5">
+      <!-- N1: slot machine -->
+      <div id="numN1" class="tease-page">
+        <h3 class="font-display text-3xl sm:text-4xl font-bold">Kismat dial ho rahi hai…</h3>
+        <p class="text-white/70 mt-3 max-w-sm">Universe tumhare liye ek number chun raha hai. Dekhte hain kya kehta hai.</p>
+        <div id="slotDigits" class="flex gap-2 sm:gap-3 justify-center mt-10" aria-hidden="true"></div>
+        <p id="n1Status" class="text-amber-300/90 font-semibold h-6 mt-6"></p>
+        <button id="n1Btn" class="btn-primary mt-4 hidden">Phir se try karo</button>
+      </div>
+
+      <!-- N2: yes/no, no runs -->
+      <div id="numN2" class="tease-page hidden">
+        <h3 class="font-display text-3xl sm:text-4xl font-bold">Hmm, ek minute…</h3>
+        <p id="n2Q" class="text-white/80 mt-4 text-lg max-w-sm">Mera number <span class="text-amber-300 font-bold">exclusive</span> hai. Promise karo — wisely use karoge?</p>
+        <div class="flex gap-4 mt-10 items-center justify-center flex-wrap min-h-[64px]">
+          <button id="n2Yes" class="btn-primary">Pakka promise!</button>
+          <button id="n2No" class="btn-ghost transition-all duration-300">Nahi</button>
+        </div>
+      </div>
+
+      <!-- N3: tap heart -->
+      <div id="numN3" class="tease-page hidden">
+        <h3 class="font-display text-3xl sm:text-4xl font-bold">Vault kholo</h3>
+        <p class="text-white/70 mt-3 max-w-sm">Dil ko <span class="text-amber-300 font-bold">10</span> baar tap karo aur vault kholo. Har tap count hota hai.</p>
+        <button id="heartTap" class="heart-btn mt-10" aria-label="Tap to unlock">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="w-24 h-24 drop-shadow-[0_0_25px_rgba(255,80,120,.55)]"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          <span id="heartCount" class="absolute -bottom-9 left-1/2 -translate-x-1/2 text-white/60 text-sm font-bold">0 / 10</span>
+        </button>
+        <p id="n3Note" class="text-white/60 text-sm h-6 mt-14"></p>
+      </div>
+
+      <!-- N4: reveal -->
+      <div id="numN4" class="tease-page hidden">
+        <p class="text-amber-200/90 tracking-[0.3em] uppercase text-xs sm:text-sm font-semibold">VIP access mil gaya</p>
+        <h3 class="font-display text-3xl sm:text-4xl font-bold mt-2">Ye lo — mera number 🎉</h3>
+        <div class="number-card mt-8">
+          <span class="text-white/50 text-xs tracking-[0.25em] uppercase">"Favourite Human" naam se save karo</span>
+          <span id="numReveal" class="font-display text-3xl sm:text-5xl font-bold tracking-wider mt-3 block gradient-text" data-phone>+91 XXXXX XXXXX</span>
+        </div>
+        <a id="waBtn" class="btn-wa mt-8" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+          <span>Chat on WhatsApp</span>
+        </a>
+        <p class="text-white/45 text-xs mt-4">Button tap karo — WhatsApp khulega, "Hii" pehle se likha milega. Bas send dabao 😄</p>
+      </div>
+
+      <!-- N5: finale -->
+      <div id="numN5" class="tease-page hidden">
+        <div class="font-serif italic text-2xl sm:text-3xl text-white/85 leading-relaxed max-w-md">"Kuch log duniya ko bas apni presence se hi zyada khoobsurat bana dete hain.<br/>Us list me tum sabse upar ho."</div>
+        <p class="text-amber-300 font-display text-xl mt-8">— Hariom</p>
+        <button id="btnShare" class="btn-ghost mt-8">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span>Ye surprise share karo</span>
+        </button>
+        <button id="btnReplay" class="btn-ghost mt-4">Magic phir se dekho ↺</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/three-bg.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
